@@ -7,9 +7,11 @@ O objetivo é implementar um sistema de coleta de informações utilizando o ESP
 - IDE: Arduino IDE
 - Linguagem: C++ (Arduino Framework)
 - Bibliotecas:
-  - Adafruit_GFX
+  - Adafruit BusIO
+  - Adafruit GFX Library
   - Adafruit_SSD1306
-  - DHT
+  - DHT sensor library
+  - Adafruit Unified Sensor
   - LoRa
 
 # Componentes Utilizados
