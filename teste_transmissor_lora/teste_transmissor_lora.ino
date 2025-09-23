@@ -1,4 +1,4 @@
-#include "LoRaComunicacao/LoRaComunicacao.h"
+#include "LoRaComunicacao.h"
 
 // ===== Configurações do LoRa =====
 #define LORA_SS 18
@@ -26,7 +26,6 @@ void loop() {
   // Envia uma mensagem teste
   String mensagem = "Teste LoRa!";
   lora.enviarMensagem(mensagem);
-  Serial.println("Mensagem enviada: " + mensagem);
 
   // Tenta receber alguma mensagem
   String recebido = lora.receberMensagem();

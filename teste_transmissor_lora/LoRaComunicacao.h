@@ -10,7 +10,7 @@ public:
     LoRaComunicacao(long frequency);
 
     // Inicializa o LoRa na frequência configurada
-    bool begin();
+    bool iniciar();
 
     // Envia uma mensagem de texto
     void enviarMensagem(const String& mensagem);
