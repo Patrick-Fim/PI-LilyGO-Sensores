@@ -1,4 +1,4 @@
-#include "LoRaComunicacao.h"
+#include "LoRaComunicacao/LoRaComunicacao.h"
 
 // ===== Configurações do LoRa =====
 #define LORA_SS 18
@@ -15,7 +15,7 @@ void setup() {
   SPI.begin(5, 19, 27, LORA_SS); // SCK, MISO, MOSI, CS
   LoRa.setPins(LORA_SS, LORA_RST, LORA_DIO0);
 
-  if (!lora.begin()) {
+  if (!lora.iniciar()) {
     Serial.println("Falha ao iniciar LoRa!");
     while (1);
   }
