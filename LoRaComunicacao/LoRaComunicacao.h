@@ -2,24 +2,22 @@
 #define LORACOMUNICACAO_H
 
 #include <Arduino.h>
-#include <LoRa.h>
+#include <lmic.h> // MCCI LoRaWAN LMIC library
+#include <hal/hal.h>
 
+// Classe para encapsular o envio LoRaWAN
 class LoRaComunicacao {
 public:
-    // Construtor - recebe a frequência como parâmetro (868E6 ou 915E6)
-    LoRaComunicacao(long frequency);
+    LoRaComunicacao();
 
-    // Inicializa o LoRa na frequência configurada
-    bool iniciar();
+    // Inicializa a stack LoRaWAN com as credenciais
+    void iniciar(const u1_t* deveui, const u1_t* appeui, const u1_t* appkey);
 
-    // Envia uma mensagem de texto
-    void enviarMensagem(const String& mensagem);
+    // Envia dados (binário)
+    void enviarDados(uint8_t* dados, uint8_t tamanho);
 
-    // Verifica se chegou algum pacote e retorna o conteúdo
-    String receberMensagem();
-
-private:
-    long _frequencia; // Frequência usada pelo módulo LoRa
+    // Deve ser chamado no loop() para o LMIC funcionar
+    void processar();
 };
 
 #endif

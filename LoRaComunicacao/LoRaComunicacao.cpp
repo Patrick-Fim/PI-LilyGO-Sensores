@@ -1,39 +1,27 @@
 #include "LoRaComunicacao.h"
 
-// Construtor: recebe a frequência desejada
-LoRaComunicacao::LoRaComunicacao(long frequency) {
-    _frequencia = frequency;
+LoRaComunicacao::LoRaComunicacao() {}
+
+void LoRaComunicacao::iniciar(const u1_t* deveui, const u1_t* appeui, const u1_t* appkey) {
+    // Inicialização do LMIC
+    os_init();
+    LMIC_reset();
+
+    // Copia as credenciais
+    memcpy_P(DEV_EUI, deveui, 8);
+    memcpy_P(APP_EUI, appeui, 8);
+    memcpy_P(APP_KEY, appkey, 16);
+
+    // Inicia processo de join OTAA
+    LMIC_startJoining();
 }
 
-// Inicializa o LoRa na frequência configurada
-bool LoRaComunicacao::iniciar() {
-    if (!LoRa.begin(_frequencia)) {
-        Serial.println("Falha ao inicializar LoRa!");
-        return false; // falha ao iniciar
-    } else {
-        Serial.println("LoRa inicializado com sucesso!");
-        return true; // iniciado com sucesso
-    }
+void LoRaComunicacao::enviarDados(uint8_t* dados, uint8_t tamanho) {
+    // Envia um pacote uplink
+    LMIC_setTxData2(1, dados, tamanho, 0);
+    Serial.println(F("Pacote enfileirado para envio"));
 }
 
-// Envia uma mensagem de texto
-void LoRaComunicacao::enviarMensagem(const String& mensagem) {
-    LoRa.beginPacket();
-    LoRa.print(mensagem);
-    LoRa.endPacket();
-    Serial.println("Enviado a mensagem: " + mensagem);
-}
-
-// Verifica se chegou algum pacote e retorna o conteúdo
-String LoRaComunicacao::receberMensagem() {
-    int packetSize = LoRa.parsePacket();
-    String recebido = "";
-
-    if (packetSize) {
-        while (LoRa.available()) {
-            recebido += (char)LoRa.read();
-        }
-    }
-
-    return recebido; // vazio se não tiver nada
+void LoRaComunicacao::processar() {
+    os_runloop_once(); // roda a stack
 }
