@@ -81,7 +81,7 @@ const lmic_pinmap lmic_pins = {
   .nss = 18,
   .rxtx = LMIC_UNUSED_PIN,
   .rst = 23,
-  .dio = {26, 0, 0},
+  .dio = {26, 33, 32},
 };
 
 osjob_t sendjob;
