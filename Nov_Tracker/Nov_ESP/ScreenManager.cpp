@@ -8,7 +8,7 @@ ScreenManager::ScreenManager(Adafruit_SSD1306* display, int totalScreens) {
 }
 
 void ScreenManager::begin() {
-  pinMode(BUTTON_PIN, INPUT_PULLUP);
+  pinMode(BUTTON_PIN, INPUT);
 }
 
 void ScreenManager::addScreen(void (*screenFunc)(Adafruit_SSD1306* display)) {

@@ -8,12 +8,13 @@ uint8_t tx_payload[21];
 
 boolean join_success = false;
 //
-// For normal use, we require that you edit the sketch to replace FILLMEIN
-// with values assigned by the TTN console. However, for regression tests,
-// we want to be able to compile these scripts. The regression tests define
-// COMPILE_REGRESSION_TEST, and in that case we define FILLMEIN to a non-
-// working but innocuous value.
+// Para uso normal, é necessário que você edite o sketch para substituir FILLMEIN
+// pelos valores fornecidos pelo console do TTN. No entanto, para testes de regressão, 
+// queremos poder compilar esses scripts. Os testes de regressão definem
+// COMPILE_REGRESSION_TEST e, nesse caso, definimos FILLMEIN como um valor
+// não funcional, mas inofensivo.
 //
+
 #ifdef COMPILE_REGRESSION_TEST
 # define FILLMEIN 0
 #else
@@ -21,50 +22,40 @@ boolean join_success = false;
 # define FILLMEIN (#dont edit this, edit the lines that use FILLMEIN)
 #endif
 
-// This EUI must be in little-endian format, so least-significant-byte
-// first. When copying an EUI from ttnctl output, this means to reverse
-// the bytes. For TTN issued EUIs the last bytes should be 0xD5, 0xB3,
-// 0x70.
-//74 50 81 c1 1c 0a 77 4b           Chirp
+// Exemplo de EUI para ChirpStack:
+// 74 50 81 c1 1c 0a 77 4b
+// 47 CB AF 6D F4 24 8B 9D 
 
-//47 CB AF 6D F4 24 8B 9D 
-
-//LilyGo Demo
-//static const u1_t PROGMEM APPEUI[8] = {0x53,0x45,0x97,0xb8,0xeb,0x35,0xba,0xb4};
-
+// static const u1_t PROGMEM APPEUI[8] = {0x53,0x45,0x97,0xb8,0xeb,0x35,0xba,0xb4};
 static const u1_t PROGMEM APPEUI[8] = {0x4b,0x77,0x0a,0x1c,0xc1,0x81,0x50,0x74};
-//static const u1_t PROGMEM APPEUI[8] = { 0x47,0xcb,0xaf,0x6d,0xf4,0x24,0x8b,0x9d };
+//static const u1_t PROGMEM APPEUI[8] = {0x47,0xcb,0xaf,0x6d,0xf4,0x24,0x8b,0x9d};
+
+
+
+// static const u1_t PROGMEM DEVEUI[8] = {0x53,0x45,0x97,0xb8,0xeb,0x35,0xba,0xb4};
+static const u1_t PROGMEM DEVEUI[8] = {0x4b,0x77,0x0a,0x1c,0xc1,0x81,0x50,0x74};
+//static const u1_t PROGMEM DEVEUI[8] = {0x47,0xcb,0xaf,0x6d,0xf4,0x24,0x8b,0x9d};
+
+
+
+//static const u1_t PROGMEM APPKEY[16] = {0x1f,0x9b,0x21,0x82,0x34,0x71,0x94,0x61,0x83,0x8f,0x11,0xcb,0x35,0xdc,0x3c,0x00};
+static const u1_t PROGMEM APPKEY[16] = {0xa2,0x7e,0xfc,0x95,0x90,0x12,0x3f,0x02,0xb7,0x24,0xfc,0x51,0x64,0x5f,0x1c,0x2e};
+
+// Representação em string da chave: 1f9b218234719461838f11cb35dc3c00
+
 void os_getArtEui (u1_t* buf) {
   memcpy_P(buf, APPEUI, 8);
 }
 
-// This should also be in little endian format, see above.
-//LilyGo Demo
-//static const u1_t PROGMEM DEVEUI[8] = {0x53,0x45,0x97,0xb8,0xeb,0x35,0xba,0xb4};
-
-static const u1_t PROGMEM DEVEUI[8] = {0x4b,0x77,0x0a,0x1c,0xc1,0x81,0x50,0x74};
-//static const u1_t PROGMEM DEVEUI[8] = { 0x47,0xcb,0xaf,0x6d,0xf4,0x24,0x8b,0x9d };
 void os_getDevEui (u1_t* buf) {
   memcpy_P(buf, DEVEUI, 8);
 }
-//0xa2,0x7e,0xfc,0x95,0x90,0x12,0x3f,0x02,0xb7,0x24,0xfc,0x51,0x64,0x5f,0x1c,0x2e
-// This key should be in big endian format (or, since it is not really a
-// number but a block of memory, endianness does not really apply). In
-// practice, a key taken from ttnctl can be copied as-is.
-
-//LilyGo Demo
-//static const u1_t PROGMEM APPKEY[16] = {0x1f,0x9b,0x21,0x82,0x34,0x71,0x94,0x61,0x83,0x8f,0x11,0xcb,0x35,0xdc,0x3c,0x00};
-
-//1f9b218234719461838f11cb35dc3c00
-
-static const u1_t PROGMEM APPKEY[16] = {0xa2,0x7e,0xfc,0x95,0x90,0x12,0x3f,0x02,0xb7,0x24,0xfc,0x51,0x64,0x5f,0x1c,0x2e};
-
-
-
 
 void os_getDevKey (u1_t* buf) {
   memcpy_P(buf, APPKEY, 16);
 }
+
+
 
 static osjob_t sendjob;
 
@@ -72,19 +63,12 @@ static osjob_t sendjob;
 // cycle limitations).
 const unsigned TX_INTERVAL = 60;
 
-//LoRa pin mapping ESP32 (LILYGO Board V1.1)
-/*const lmic_pinmap lmic_pins = {
-  .nss = 18,
-  .rxtx = LMIC_UNUSED_PIN,
-  .rst = 23,  //23
-  .dio = {26, 33, 32},
-}; */
-const lmic_pinmap lmic_pins = {
-    .nss =  RADIO_CS_PIN,
-    .rxtx = LMIC_UNUSED_PIN,
-    .rst =  RADIO_RST_PIN,
-    .dio = {RADIO_DIO0_PIN, RADIO_DIO1_PIN, RADIO_DIO2_PIN}
-};
+//const lmic_pinmap lmic_pins = {
+    //.nss =  RADIO_CS_PIN,
+    //.rxtx = LMIC_UNUSED_PIN,
+    //.rst =  RADIO_RST_PIN,
+    //.dio = {RADIO_DIO0_PIN, RADIO_DIO1_PIN, RADIO_DIO2_PIN}
+//};
 
 void setupLoRa(){
 
@@ -175,6 +159,7 @@ void onEvent (ev_t ev) {
       // during join, but because slow data rates change max TX
       // size, we don't use it in this example.
       LMIC_setLinkCheckMode(0);
+      do_send(&sendjob);
       break;
     /*
       || This event is defined but not used in the code. No
