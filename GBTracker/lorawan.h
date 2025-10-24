@@ -1,15 +1,7 @@
-/***************************************************************************************************
-   Copyright (c) 2023 Gerson Battisti
-   GBTracker - LoRaWan Demo Tracker
- ***************************************************************************************************/
-
 #include <lmic.h>
 #include <hal/hal.h>
 #include <SPI.h>
 #include "LoRaBoards.h"
-
-#define CFG_au915 1          // habilita a banda AU915 (Brasil)
-#define CFG_sx1276_radio 1   // define o chip de rádio SX1276 usado no T-Beam
 
 String read_sentence;
 uint8_t tx_payload[21];
@@ -38,38 +30,31 @@ boolean join_success = false;
 //47 CB AF 6D F4 24 8B 9D 
 
 //LilyGo Demo
-//static const u1_t PROGMEM APPEUI[8] = {0x53,0x45,0x97,0xb8,0xeb,0x35,0xba,0xb4};
-//static const u1_t PROGMEM APPEUI[8] = {0};
+static const u1_t PROGMEM APPEUI[8] = {0x53,0x45,0x97,0xb8,0xeb,0x35,0xba,0xb4};
 
-static const u1_t PROGMEM APPEUI[8] = {0x4b,0x77,0x0a,0x1c,0xc1,0x81,0x50,0x74};
+//static const u1_t PROGMEM APPEUI[8] = {0x4b,0x77,0x0a,0x1c,0xc1,0x81,0x50,0x74};
 //static const u1_t PROGMEM APPEUI[8] = { 0x47,0xcb,0xaf,0x6d,0xf4,0x24,0x8b,0x9d };
-//static const u1_t PROGMEM APPEUI[8] = {0x74, 0x50, 0x81, 0xc1, 0x1c, 0x0a, 0x77, 0x4b };
+
 void os_getArtEui (u1_t* buf) {
   memcpy_P(buf, APPEUI, 8);
 }
 
 // This should also be in little endian format, see above.
 //LilyGo Demo
-//static const u1_t PROGMEM DEVEUI[8] = {0x53,0x45,0x97,0xb8,0xeb,0x35,0xba,0xb4};
-//static const u1_t PROGMEM DEVEUI[8] = {0};
+static const u1_t PROGMEM DEVEUI[8] = {0x53,0x45,0x97,0xb8,0xeb,0x35,0xba,0xb4};
 
-static const u1_t PROGMEM DEVEUI[8] = {0x4b,0x77,0x0a,0x1c,0xc1,0x81,0x50,0x74};
+//static const u1_t PROGMEM DEVEUI[8] = {0x4b,0x77,0x0a,0x1c,0xc1,0x81,0x50,0x74};
 //static const u1_t PROGMEM DEVEUI[8] = { 0x47,0xcb,0xaf,0x6d,0xf4,0x24,0x8b,0x9d };
 void os_getDevEui (u1_t* buf) {
   memcpy_P(buf, DEVEUI, 8);
 }
 //0xa2,0x7e,0xfc,0x95,0x90,0x12,0x3f,0x02,0xb7,0x24,0xfc,0x51,0x64,0x5f,0x1c,0x2e
-// This key should be in big endian format (or, since it is not really a
-// number but a block of memory, endianness does not really apply). In
-// practice, a key taken from ttnctl can be copied as-is.
 
-//LilyGo Demo
-//static const u1_t PROGMEM APPKEY[16] = {0x1f,0x9b,0x21,0x82,0x34,0x71,0x94,0x61,0x83,0x8f,0x11,0xcb,0x35,0xdc,0x3c,0x00};
-//static const u1_t PROGMEM APPKEY[16] = {0};
+static const u1_t PROGMEM APPKEY[16] = {0x1f,0x9b,0x21,0x82,0x34,0x71,0x94,0x61,0x83,0x8f,0x11,0xcb,0x35,0xdc,0x3c,0x00};
 
 //1f9b218234719461838f11cb35dc3c00
 
-static const u1_t PROGMEM APPKEY[16] = {0xa2,0x7e,0xfc,0x95,0x90,0x12,0x3f,0x02,0xb7,0x24,0xfc,0x51,0x64,0x5f,0x1c,0x2e};
+//static const u1_t PROGMEM APPKEY[16] = {0xa2,0x7e,0xfc,0x95,0x90,0x12,0x3f,0x02,0xb7,0x24,0xfc,0x51,0x64,0x5f,0x1c,0x2e};
 
 void os_getDevKey (u1_t* buf) {
   memcpy_P(buf, APPKEY, 16);
@@ -89,10 +74,11 @@ const lmic_pinmap lmic_pins = {
 };
 
 void setupLoRa(){
+
 // LMIC init
-  Serial.println("Iniciando LoRa ...");
+  Serial.print("Iniciando LoRa ...");
+  //Serial.print(os_init_ex (lmic_pins));
   os_init();
-  LMIC_reset();
 }
 
   
@@ -132,23 +118,18 @@ void onEvent (ev_t ev) {
     case EV_SCAN_TIMEOUT:
       Serial.println(F("EV_SCAN_TIMEOUT"));
       break;
-
     case EV_BEACON_FOUND:
       Serial.println(F("EV_BEACON_FOUND"));
       break;
-
     case EV_BEACON_MISSED:
       Serial.println(F("EV_BEACON_MISSED"));
       break;
-
     case EV_BEACON_TRACKED:
       Serial.println(F("EV_BEACON_TRACKED"));
       break;
-
     case EV_JOINING:
       Serial.println(F("EV_JOINING"));
       break;
-
     case EV_JOINED:
       Serial.println(F("EV_JOINED"));
       {
@@ -177,19 +158,16 @@ void onEvent (ev_t ev) {
         Serial.println();
         join_success = true;
       }
-
       LMIC_setLinkCheckMode(0);
       break;
-
     case EV_JOIN_FAILED:
       Serial.println(F("EV_JOIN_FAILED"));
       break;
-
     case EV_REJOIN_FAILED:
       Serial.println(F("EV_REJOIN_FAILED"));
       break;
-
     case EV_TXCOMPLETE:
+
       Serial.println(F("EV_TXCOMPLETE (includes waiting for RX windows)"));
       if (LMIC.txrxFlags & TXRX_ACK)
         Serial.println(F("Received ack"));
@@ -198,48 +176,42 @@ void onEvent (ev_t ev) {
         Serial.print(LMIC.dataLen);
         Serial.println(F(" bytes of payload"));
       }
+      // Schedule next transmission
       os_setTimedCallback(&sendjob, os_getTime() + sec2osticks(TX_INTERVAL), do_send);
       break;
-
     case EV_LOST_TSYNC:
       Serial.println(F("EV_LOST_TSYNC"));
       break;
-
     case EV_RESET:
       Serial.println(F("EV_RESET"));
       break;
-
     case EV_RXCOMPLETE:
+      // data received in ping slot
       Serial.println(F("EV_RXCOMPLETE"));
       break;
-
     case EV_LINK_DEAD:
       Serial.println(F("EV_LINK_DEAD"));
       break;
-
     case EV_LINK_ALIVE:
       Serial.println(F("EV_LINK_ALIVE"));
       break;
-
     case EV_TXSTART:
       Serial.println(F("EV_TXSTART"));
       break;
-
     case EV_TXCANCELED:
       Serial.println(F("EV_TXCANCELED"));
       break;
-
     case EV_RXSTART:
       /* do not print anything -- it wrecks timing */
       break;
-
     case EV_JOIN_TXCOMPLETE:
       Serial.println(F("EV_JOIN_TXCOMPLETE: no JoinAccept"));
       break;
-      
+
     default:
       Serial.print(F("Unknown event: "));
       Serial.println((unsigned) ev);
       break;
   }
 }
+
