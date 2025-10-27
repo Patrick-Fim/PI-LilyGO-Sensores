@@ -1,0 +1,7 @@
+function decodeUplink(input) {
+  return {
+    ID_ESP: input.bytes[0],
+    temp: ((input.bytes[1] << 8) | input.bytes[2]) / 10,
+    hum: input.bytes[3]
+  };
+}

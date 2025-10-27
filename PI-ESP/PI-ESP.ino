@@ -78,18 +78,20 @@ void setup() {
 
   do_send(&sendjob);
 
-  // Inicializa Display
+  Serial.println(F("Sistema iniciado com sucesso."));
+
+  // Inicializa Display (Coloque como comentário caso n tenha display)
+  /**/
   if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
     Serial.println(F("OLED não detectado. Continuando apenas com Serial."));
   } else {
     screenManager.begin();  // ScreenManager já desenha as telas
   }
-
-  Serial.println(F("Sistema iniciado com sucesso."));
+  
 }
 
 void loop() {
   os_runloop_once();      // Mantém a pilha LoRaWAN
-  screenManager.update(); // Atualiza as telas
+  screenManager.update(); // Atualiza as telas (Coloque como comentário caso n tenha display)
   previewPayload();       // Mostra pré-visualização no Serial
 }
