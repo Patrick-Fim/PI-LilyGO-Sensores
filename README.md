@@ -7,16 +7,21 @@ O objetivo é implementar um sistema de coleta de informações utilizando o ESP
 - IDE: Arduino IDE
 - Linguagem: C++ (Arduino Framework)
 - Bibliotecas:
-  - Adafruit BusIO
-  - Adafruit GFX Library
+  - Adafruit_BusIO
+  - Adafruit_GFX_Library
+  - Adafruit_Sensor-master
   - Adafruit_SSD1306
-  - DHT sensor library
-  - Adafruit Unified Sensor
+  - DHT_sensor_library
   - LoRa
+  - MCCI_LoRaWAN_LMIC_library
+  - SD
+  - U8g2
+  - XPowersLib
+
 
 # Componentes Utilizados
 - Microcontrolador: ESP32 LilyGO T-Display
-- Sensores: DHT11 / DHT22 (temperatura e umidade)
+- Sensores: DHT22 (temperatura e umidade)
 - Módulo de comunicação: LoRa (868/915 MHz)
 - Display: OLED 128x64 (opcional, depende do ESP32 usado)
 
