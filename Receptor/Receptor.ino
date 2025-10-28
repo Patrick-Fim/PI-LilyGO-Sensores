@@ -1,51 +1,57 @@
 #include <SPI.h>
 #include <LoRa.h>
-#include <DHT.h>
 
-#define DHT_SENSOR_PIN 2
-#define DHT_SENSOR_TYPE DHT22
-DHT dht(DHT_SENSOR_PIN, DHT_SENSOR_TYPE);
-
-const int ID_ESP = 1;
-
-#define LORA_CS 18
-#define LORA_RST 23
+#define LORA_CS   18
+#define LORA_RST  23
 #define LORA_DIO0 26
 
 void setup() {
   Serial.begin(115200);
-  dht.begin();
+  while (!Serial);
 
-  SPI.begin(5, 19, 27, 18); 
+  Serial.println("Iniciando Receptor LoRa...");
+
+  SPI.begin(5, 19, 27, LORA_CS);
   LoRa.setPins(LORA_CS, LORA_RST, LORA_DIO0);
 
-  while (!LoRa.begin(915E6)) {
-    Serial.println("Tentando inicializar LoRa...");
-    delay(500);
+  if (!LoRa.begin(915E6)) {
+    Serial.println("Falha ao iniciar LoRa!");
+    while (1);
   }
-  Serial.println("LoRa OK!");
+
+  Serial.println("LoRa iniciado com sucesso!");
+  Serial.println("Aguardando pacotes...\n");
 }
 
 void loop() {
-  float temp = dht.readTemperature();
-  float hum = dht.readHumidity();
+  int packetSize = LoRa.parsePacket();
+  if (packetSize == 0) return; // nada recebido
 
-  int16_t temp_int = (int16_t)(temp * 10);
+  uint8_t buffer[4];
+  int i = 0;
 
-  uint8_t payload[4];
-  payload[0] = ID_ESP;
-  payload[1] = highByte(temp_int);
-  payload[2] = lowByte(temp_int);
-  payload[3] = (uint8_t)hum;
+  while (LoRa.available() && i < 4) {
+    buffer[i++] = LoRa.read();
+  }
 
-  LoRa.beginPacket();
-  LoRa.write(payload, sizeof(payload));
-  LoRa.endPacket();
+  if (i == 4) {
+    uint8_t id = buffer[0];
+    int16_t temp_int = (buffer[1] << 8) | buffer[2];
+    float temp = temp_int / 10.0;
+    uint8_t hum = buffer[3];
 
-  Serial.print("Enviado: ");
-  Serial.print("ID_ESP: "); Serial.print(ID_ESP);
-  Serial.print(" | Temp: "); Serial.print(temp);
-  Serial.print(" | Hum: "); Serial.println(hum);
+    Serial.print("Pacote recebido -> ");
+    Serial.print("{ID_ESP: ");
+    Serial.print(id);
+    Serial.print(", temp: ");
+    Serial.print(temp, 1);
+    Serial.print(", hum: ");
+    Serial.print(hum);
+    Serial.println("}");
+  } else {
+    Serial.println("Pacote com tamanho inesperado!");
+  }
 
-  delay(3000);
+  Serial.print("RSSI: ");
+  Serial.println(LoRa.packetRssi());
 }
