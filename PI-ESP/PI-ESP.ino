@@ -15,9 +15,12 @@ const unsigned TX_INTERVAL = 60;  // Pode alterar à vontade
 // --- Pacote para enviar via LoRaWAN ---
 extern uint8_t tx_payload[21]; // para que preparePayload() consiga acessar
 
+const uint8_t id = 2;
+
 void preparePayload() {
-    uint8_t id = 1; // ID do ESP32
+
     float temp = dht.readTemperature();
+
     float hum = dht.readHumidity();
 
     int16_t temp_int = (int16_t)(temp * 10); // ex: 25,6°C -> 256
@@ -30,14 +33,13 @@ void preparePayload() {
 
 // --- Pré-Vizualização dos dados ---
 unsigned long lastPreview = 0;
-const unsigned PREVIEW_INTERVAL = 3000; // 3 segundos
+const unsigned PREVIEW_INTERVAL = 6000; // 3 segundos
 
 void previewPayload() {
   unsigned long now = millis();
   if (now - lastPreview >= PREVIEW_INTERVAL) {
     lastPreview = now;
 
-    uint8_t id = 1;
     float temp = dht.readTemperature();
     float hum  = dht.readHumidity();
 
@@ -61,6 +63,9 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 ScreenManager screenManager(&display, &dht, 4); // 4 telas: Logo, Temp, Umidade, LoRa
 
 void setup() {
+  pinMode(4, OUTPUT);
+  digitalWrite(4, HIGH);
+
   Serial.begin(115200);
   Serial.println(F("Iniciando sistema..."));
 
@@ -93,5 +98,5 @@ void setup() {
 void loop() {
   os_runloop_once();      // Mantém a pilha LoRaWAN
   screenManager.update(); // Atualiza as telas (Coloque como comentário caso n tenha display)
-  previewPayload();       // Mostra pré-visualização no Serial
+//  previewPayload();       // Mostra pré-visualização no Serial
 }
