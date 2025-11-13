@@ -5,17 +5,16 @@
 #include <DHT.h>
 
 // --- Sensor DHT ---
-#define DHT_SENSOR_PIN 2
+#define DHT_SENSOR_PIN 25 // Altera de acordo com o pino de conexão do sensor DHT
 #define DHT_SENSOR_TYPE DHT22
+//#define DHT_SENSOR_TYPE DHT11
 DHT dht(DHT_SENSOR_PIN, DHT_SENSOR_TYPE);
 
 // --- Intervalo de envio LoRaWAN ---
-const unsigned TX_INTERVAL = 60;  // Pode alterar à vontade
+const unsigned TX_INTERVAL = 60;  // Intervalo em segundos
 
 // --- Pacote para enviar via LoRaWAN ---
-extern uint8_t tx_payload[21]; // para que preparePayload() consiga acessar
-
-const uint8_t id = 2;
+extern uint8_t tx_payload[7]; // para que preparePayload() consiga acessar
 
 void preparePayload() {
 
@@ -24,16 +23,20 @@ void preparePayload() {
     float hum = dht.readHumidity();
 
     int16_t temp_int = (int16_t)(temp * 10); // ex: 25,6°C -> 256
+    int16_t hum_int =(uint16_t)(hum * 2);
 
-    tx_payload[0] = id;
-    tx_payload[1] = highByte(temp_int);
-    tx_payload[2] = lowByte(temp_int);
-    tx_payload[3] = (uint8_t)hum;
+    tx_payload[0] = 0x01;
+    tx_payload[1] = 0x67;
+    tx_payload[2] = highByte(temp_int);
+    tx_payload[3] = lowByte(temp_int);
+    tx_payload[4] = 0x02;
+    tx_payload[5] = 0x68;
+    tx_payload[6] = (uint8_t)hum_int;
 }
 
 // --- Pré-Vizualização dos dados ---
 unsigned long lastPreview = 0;
-const unsigned PREVIEW_INTERVAL = 6000; // 3 segundos
+const unsigned PREVIEW_INTERVAL = 5000; // 5 segundos
 
 void previewPayload() {
   unsigned long now = millis();
@@ -43,9 +46,7 @@ void previewPayload() {
     float temp = dht.readTemperature();
     float hum  = dht.readHumidity();
 
-    Serial.print("{ID_ESP: ");
-    Serial.print(id);
-    Serial.print(", temp: ");
+    Serial.print("{temp: ");
     Serial.print(temp);
     Serial.print(", hum: ");
     Serial.print(hum);
@@ -85,18 +86,16 @@ void setup() {
 
   Serial.println(F("Sistema iniciado com sucesso."));
 
-  // Inicializa Display (Coloque como comentário caso n tenha display)
-  /**/
+  // Inicializa Display
   if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
     Serial.println(F("OLED não detectado. Continuando apenas com Serial."));
   } else {
     screenManager.begin();  // ScreenManager já desenha as telas
   }
-  
 }
 
 void loop() {
   os_runloop_once();      // Mantém a pilha LoRaWAN
   screenManager.update(); // Atualiza as telas (Coloque como comentário caso n tenha display)
-//  previewPayload();       // Mostra pré-visualização no Serial
+  previewPayload();       // Mostra pré-visualização no Serial
 }
